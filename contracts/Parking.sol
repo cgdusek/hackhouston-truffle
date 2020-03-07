@@ -81,13 +81,17 @@ contract Parking is Ownable {
         return true;
     }
 
-    function buyOpening(uint256 _openingId) public returns(bool) {
+    function buyOpening(uint256 _openingId) public returns(address) {
         require(pc.balanceOf(msg.sender) >= opening[_openingId].value, "not enough tokens in sender's balance");
         require(pc.allowance(msg.sender, address(this)) >= opening[_openingId].value, "sender has not enough allowance");
         uint256 value = opening[_openingId].value;
         uint256 spaceId = opening[_openingId].spaceId;
         address openingOwner = spaceOwner[spaceId];
-        pc.transferFrom(msg.sender, openingOwner, value);
-        return true;
+        // pc.transferFrom(msg.sender, openingOwner, value);
+        return openingOwner;
+    }
+
+    function getSpaceOwner(uint256 _spaceId) public view returns(address) {
+        return spaceOwner[_spaceId];
     }
 }
