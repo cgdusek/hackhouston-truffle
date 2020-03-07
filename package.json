@@ -1,0 +1,28 @@
+{
+  "name": "hackhouston-truffle",
+  "version": "1.0.0",
+  "description": "hackhouston parking demo",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {
+    "js-sha256": "^0.9.0",
+    "openzeppelin-solidity": "github:OpenZeppelin/openzeppelin-contracts",
+    "path-dirname": "^1.0.2",
+    "web3": "^1.2.4"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cgdusek/hackhouston-truffle.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cgdusek/hackhouston-truffle/issues"
+  },
+  "homepage": "https://github.com/cgdusek/hackhouston-truffle#readme"
+}
