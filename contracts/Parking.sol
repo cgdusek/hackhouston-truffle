@@ -16,16 +16,11 @@ contract Parking is Ownable {
     constructor(address parxosContAddr) public {
         pc = ERC20Token(parxosContAddr);
     }
-     
-    struct reservationStruct {
-        address customer; // used address that the space is reserved to
-        uint256[2] timestamps; // [beggining, ending]  All reservation and opening times are indicated by these types of pairs
-    }
 
     struct openingStruct {
         uint256[2] timestamps; // [beginTsHash, endTsHash]
         uint256[2] spaceLinks; // [headId, tailId] Linked List of space openings head and tail (0 if head and/or tail)
-
+        uint256 value; // cost of the opening
     }
 
     mapping (uint256 => uint256[2]) space; // spaceId (uint256) to Opening Linked List [head, tail]
@@ -48,12 +43,14 @@ contract Parking is Ownable {
                         uint256 _openingTail,
                         uint256 _spaceId,
                         uint256 _openingId,
+                        uint256 _value
                         ) public returns(bool success) {
         
         require(owner(_spaceId) == msg.sender, 'Space not owned by msg.sender');
         if(space[_spaceId][0] == 0 && _openingHead == uint256(0) && _openingTail == uint256(0)) {
             space[_spaceId] = [_openingId, _openingId];
             opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
+            opening[_openingId].value = _value;
             return true;
         }
         
@@ -62,6 +59,7 @@ contract Parking is Ownable {
             space[_spaceId][0] = _openingId
             opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
             opening[_openingId].spaceLinks[1] = _openingTail;
+            opening[_openingId].value = _value;
             return true;
         }
 
@@ -70,6 +68,7 @@ contract Parking is Ownable {
             space[_spaceId][1] = _openingId
             opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
             opening[_openingId].spaceLinks[0] = _openingHead;
+            opening[_openingId].value = _value;
             return true;
         }
 
@@ -78,5 +77,9 @@ contract Parking is Ownable {
         require(space[_openingTail].timestamps[0] > _endTimestamp, 'Opening is not before tail')
         opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
         opening[_openingId].spaceLinks = [_openingHead, _openingTail];
+        opening[_openingId].value = _value;
         return true;
     }
+
+    functionBuyOpening(uint256 _openingId)
+}
