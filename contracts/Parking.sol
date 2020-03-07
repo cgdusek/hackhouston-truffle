@@ -26,20 +26,10 @@ contract Parking is Ownable {
 
     mapping (uint256 => uint256[2]) space; // spaceId (uint256) to Opening Linked List [head, tail]
     mapping (uint256 => openingStruct) opening; // opening (uint256) to opening struct
-    mapping (address => uint256[]) reservations; // customer reservations
-    mapping (uint256 => address) owner; // owner of parking space
-    mapping (address => uint256[]) owned; // spaces owned by user address
-       
-    // transfer Parxos
-    function transferParxos(address _fromAddr, address _toAddr) public returns(bool success) {
-        require(pc.balanceOf(_acctAddr) >= value, "not enough tokens in sender's balance");
-        require(pc.allowance(_acctAddr, address(this)) >= value, "sender has not enough allowance");
-        pc.transferFrom(_fromAddr, _toAddr, value);
-        return true;
-    }
+    mapping (uint256 => address) spaceOwner; // owner of parking space
 
-    function addOwner(uint256 _spaceId, address _owner) {
-        owner[_spaceId] = _owner;
+    function addOwner(uint256 _spaceId, address _owner) public onlyOwner returns(bool success) {
+        spaceOwner[_spaceId] = _owner;
         return true;
     }
 
@@ -52,7 +42,7 @@ contract Parking is Ownable {
                         uint256 _value
                         ) public returns(bool success) {
         
-        require(owner(_spaceId) == msg.sender, 'Space not owned by msg.sender');
+        require(spaceOwner[_spaceId] == msg.sender, 'Space not owned by msg.sender');
         if(space[_spaceId][0] == 0 && _openingHead == uint256(0) && _openingTail == uint256(0)) {
             space[_spaceId] = [_openingId, _openingId];
             opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
@@ -61,8 +51,8 @@ contract Parking is Ownable {
         }
         
         if(_openingHead == uint256(0)) {
-            require(space[_openingTail].timestamps[0] > _endTimestamp, 'Opening is not before all others')
-            space[_spaceId][0] = _openingId
+            require(opening[_openingTail].timestamps[0] > _endTimestamp, 'Opening is not before all others');
+            space[_spaceId][0] = _openingId;
             opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
             opening[_openingId].spaceLinks[1] = _openingTail;
             opening[_openingId].value = _value;
@@ -70,17 +60,17 @@ contract Parking is Ownable {
         }
 
         if(_openingTail == uint256(0)) {
-            require(space[_openingHead].timestamps[1] < _begTimestamp, 'Opening is not before all others')
-            space[_spaceId][1] = _openingId
+            require(opening[_openingHead].timestamps[1] < _begTimestamp, 'Opening is not before all others');
+            space[_spaceId][1] = _openingId;
             opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
             opening[_openingId].spaceLinks[0] = _openingHead;
             opening[_openingId].value = _value;
             return true;
         }
 
-        require(space[_openingHead]._openingTail == space[_openingTail]._openingHead), 'Opening is not between head and tail')
-        require(space[_openingHead].timestamps[1] < _begTimestamp, 'Opening is not after head')
-        require(space[_openingTail].timestamps[0] > _endTimestamp, 'Opening is not before tail')
+        require(opening[_openingHead].spaceLinks[1] == opening[_openingTail].spaceLinks[0], 'Opening is not between head and tail');
+        require(opening[_openingHead].timestamps[1] < _begTimestamp, 'Opening is not after head');
+        require(opening[_openingTail].timestamps[0] > _endTimestamp, 'Opening is not before tail');
         opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
         opening[_openingId].spaceLinks = [_openingHead, _openingTail];
         opening[_openingId].value = _value;
@@ -89,8 +79,11 @@ contract Parking is Ownable {
 
     function buyOpening(uint256 _openingId) public returns(bool) {
         require(pc.balanceOf(msg.sender) >= opening[_openingId].value, "not enough tokens in sender's balance");
-        require(kc.allowance(msg.sender, address(this)) >= opening[_openingId].value, "sender has not enough allowance");
-        pc.transferFrom(msg.sender, owner[opening[_openingId].spaceId], value);
+        require(pc.allowance(msg.sender, address(this)) >= opening[_openingId].value, "sender has not enough allowance");
+        uint256 value = opening[_openingId].value;
+        uint256 spaceId = opening[_openingId].spaceId;
+        address openingOwner = spaceOwner[spaceId];
+        pc.transferFrom(msg.sender, openingOwner, value);
         return true;
     }
 }
