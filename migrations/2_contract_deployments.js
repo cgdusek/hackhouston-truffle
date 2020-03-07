@@ -23,12 +23,10 @@ module.exports = function(deployer) {
       privKey: '0x06b8717e798f8ceb930b518fa0e7135d4018e256689545fd3ceb6aefe7d63b64'
     }
 
-    const user2 = {
-      address: '0xf0Bc96252EF9C4e99281618F7d42ebB0644D0CcA',
-      privKey: '0x224a822b14bb9ad1dcf7df5766300a63c6853a85d38e13b8948970fc84a3e9de'
+    const owner1 = {
+      address: '0xf0Bc96252EF9C4e99281618F7d42ebB0644D0CcA'
     }
 
-    ParxosContractInstance.transfer(user1.address, 1000*10**18) // May need to BN versus large integer
-    ParxosContractInstance.transfer(user2.address, 1000*10**18)
-  });
+    ParxosContractInstance.transfer(user1.address, 1000) // May need to BN versus large integer
+    ParkingContractInstance.addOwner(1, owner1.address)
 };
