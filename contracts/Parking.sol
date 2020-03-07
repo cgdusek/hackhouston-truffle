@@ -75,8 +75,8 @@ contract Parking is Ownable {
         }
 
         require(space[_openingHead]._openingTail == space[_openingTail]._openingHead), 'Opening is not between head and tail')
-        require(space[_openingHead].timestamps[1] < _begTimestamp, 'Opening is not before all othershead')
-        require(space[_openingTail].timestamps[0] > _endTimestamp, 'Opening is not before all others')
+        require(space[_openingHead].timestamps[1] < _begTimestamp, 'Opening is not after head')
+        require(space[_openingTail].timestamps[0] > _endTimestamp, 'Opening is not before tail')
         opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
         opening[_openingId].spaceLinks = [_openingHead, _openingTail];
         return true;
