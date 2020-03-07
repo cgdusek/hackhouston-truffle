@@ -44,40 +44,40 @@ contract Parking is Ownable {
 
     function addOpening(uint256 _begTimestamp, 
                         uint256 _endTimestamp,
-                        uint256 _spaceHead,
-                        uint256 _spaceTail,
+                        uint256 _openingHead,
+                        uint256 _openingTail,
                         string memory _spaceId
                         string memory _openingId
                         ) public returns(bool success) {
         uint256 spaceIdHash = uint256(keccak256(bytes(_spaceId)));
         require(owner(spaceIdHash) == msg.sender, 'Space not owned by msg.sender');
         uint256 openingIdHash = uint256(keccak256(bytes(_openingId)))
-        if(space[spaceIdHash][0] == 0 && _spaceHead == uint256(0) && _spaceTail == uint256(0)) {
+        if(space[spaceIdHash][0] == 0 && _openingHead == uint256(0) && _openingTail == uint256(0)) {
             space[spaceIdHash] = [openingIdHash, openingIdHash];
             opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
             return true;
         }
         
-        if(_spaceHead == uint256(0)) {
-            require(space[_spaceTail].timestamps[0] > _endTimestamp, 'Opening is not before all others')
+        if(_openingHead == uint256(0)) {
+            require(space[_openingTail].timestamps[0] > _endTimestamp, 'Opening is not before all others')
             space[spaceIdHash][0] = openingIdHash
             opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
-            opening[_openingId].spaceLinks[1] = _spaceTail;
+            opening[_openingId].spaceLinks[1] = _openingTail;
             return true;
         }
 
-        if(_spaceTail == uint256(0)) {
-            require(space[_spaceHead].timestamps[1] < _begTimestamp, 'Opening is not before all others')
+        if(_openingTail == uint256(0)) {
+            require(space[_openingHead].timestamps[1] < _begTimestamp, 'Opening is not before all others')
             space[spaceIdHash][1] = openingIdHash
             opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
-            opening[_openingId].spaceLinks[0] = _spaceHead;
+            opening[_openingId].spaceLinks[0] = _openingHead;
             return true;
         }
 
-        require(space[_spaceHead]._spaceTail == space[_spaceTail]._spaceHead), 'Opening is not between head and tail')
-        require(space[_spaceHead].timestamps[1] < _begTimestamp, 'Opening is not before all othershead')
-        require(space[_spaceTail].timestamps[0] > _endTimestamp, 'Opening is not before all others')
+        require(space[_openingHead]._openingTail == space[_openingTail]._openingHead), 'Opening is not between head and tail')
+        require(space[_openingHead].timestamps[1] < _begTimestamp, 'Opening is not before all othershead')
+        require(space[_openingTail].timestamps[0] > _endTimestamp, 'Opening is not before all others')
         opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
-        opening[_openingId].spaceLinks = [_spaceHead, _spaceTail];
+        opening[_openingId].spaceLinks = [_openingHead, _openingTail];
         return true;
     }
