@@ -18,6 +18,7 @@ contract Parking is Ownable {
     }
 
     struct openingStruct {
+        uint256 spaceId; // Space ID of Opening
         uint256[2] timestamps; // [beginTsHash, endTsHash]
         uint256[2] spaceLinks; // [headId, tailId] Linked List of space openings head and tail (0 if head and/or tail)
         uint256 value; // cost of the opening
@@ -34,6 +35,11 @@ contract Parking is Ownable {
         require(pc.balanceOf(_acctAddr) >= value, "not enough tokens in sender's balance");
         require(pc.allowance(_acctAddr, address(this)) >= value, "sender has not enough allowance");
         pc.transferFrom(_fromAddr, _toAddr, value);
+        return true;
+    }
+
+    function addOwner(uint256 _spaceId, address _owner) {
+        owner[_spaceId] = _owner;
         return true;
     }
 
@@ -81,5 +87,10 @@ contract Parking is Ownable {
         return true;
     }
 
-    functionBuyOpening(uint256 _openingId)
+    function buyOpening(uint256 _openingId) public returns(bool) {
+        require(pc.balanceOf(msg.sender) >= opening[_openingId].value, "not enough tokens in sender's balance");
+        require(kc.allowance(msg.sender, address(this)) >= opening[_openingId].value, "sender has not enough allowance");
+        pc.transferFrom(msg.sender, owner[opening[_openingId].spaceId], value);
+        return true;
+    }
 }
