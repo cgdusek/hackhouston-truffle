@@ -27,7 +27,7 @@ module.exports = function(deployer, network, accounts) {
 
     await ParxosContractInstance.transfer(user1, Web3.utils.toWei(numTokens.toString(), 'ether'))
     let balUser1 = await ParxosContractInstance.balanceOf(user1)*10**(-18)
-    console.log('Balance of User 1')
+    console.log('Balance of User 1 before sale')
     console.log(`${balUser1} PRX`)
     await ParkingContractInstance.addOwner(1, owner1)
     let spaceOwner = await ParkingContractInstance.getSpaceOwner(1)
