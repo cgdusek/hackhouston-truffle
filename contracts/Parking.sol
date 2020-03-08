@@ -46,6 +46,7 @@ contract Parking is Ownable {
         if(space[_spaceId][0] == 0 && _openingHead == uint256(0) && _openingTail == uint256(0)) {
             space[_spaceId] = [_openingId, _openingId];
             opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
+            opening[_openingId].spaceId = _spaceId;
             opening[_openingId].value = _value;
             return true;
         }
@@ -65,6 +66,7 @@ contract Parking is Ownable {
             space[_spaceId][1] = _openingId;
             opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
             opening[_openingId].spaceLinks[0] = _openingHead;
+            opening[_openingId].spaceId = _spaceId;
             opening[_openingHead].spaceLinks[1] = _openingId;
             opening[_openingId].value = _value;
             return true;
@@ -75,20 +77,21 @@ contract Parking is Ownable {
         require(opening[_openingTail].timestamps[0] > _endTimestamp, 'Opening is not before tail');
         opening[_openingId].timestamps = [_begTimestamp, _endTimestamp];
         opening[_openingId].spaceLinks = [_openingHead, _openingTail];
+        opening[_openingId].spaceId = _spaceId;
         opening[_openingHead].spaceLinks[1] = _openingId;
         opening[_openingTail].spaceLinks[0] = _openingId;
         opening[_openingId].value = _value;
         return true;
     }
 
-    function buyOpening(uint256 _openingId) public returns(address) {
+    function buyOpening(uint256 _openingId) public returns(bool) {
         require(pc.balanceOf(msg.sender) >= opening[_openingId].value, "not enough tokens in sender's balance");
         require(pc.allowance(msg.sender, address(this)) >= opening[_openingId].value, "sender has not enough allowance");
         uint256 value = opening[_openingId].value;
         uint256 spaceId = opening[_openingId].spaceId;
         address openingOwner = spaceOwner[spaceId];
-        // pc.transferFrom(msg.sender, openingOwner, value);
-        return openingOwner;
+        pc.transferFrom(msg.sender, openingOwner, value);
+        return true;
     }
 
     function getSpaceOwner(uint256 _spaceId) public view returns(address) {

@@ -31,7 +31,7 @@ module.exports = function(deployer, network, accounts) {
     console.log(`${balUser1} PRX`)
     await ParkingContractInstance.addOwner(1, owner1)
     let spaceOwner = await ParkingContractInstance.getSpaceOwner(1)
-    console.log('Space Owner')
+    console.log('Space Owner Address')
     console.log(spaceOwner)
     await ParkingContractInstance.addOpening(1000, 2000, 0, 0, 1, 1, costTokensBN, {from: owner1})
     await ParxosContractInstance.approve(ParkingContractInstance.address, costTokensBN, {from: user1})
